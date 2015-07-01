@@ -33,6 +33,8 @@
 #include <utility>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 /**
  * Settings
  */
@@ -1085,7 +1087,7 @@ public:
         }
     }
 
-    void GetScriptForMining(CScript &script);
+    void GetScriptForMining(boost::shared_ptr<CReserveScript> &script);
     void UpdateRequestCount(const CBlock& block)
     {
         LOCK(cs_wallet);
@@ -1168,7 +1170,7 @@ public:
 };
 
 /** A key allocated from the key pool. */
-class CReserveKey
+class CReserveKey : public CReserveScript
 {
 protected:
     CWallet* pwallet;
@@ -1189,6 +1191,7 @@ public:
     void ReturnKey();
     virtual bool GetReservedKey(CPubKey &pubkey);
     void KeepKey();
+    void KeepScript() { KeepKey(); }
 };
 
 
