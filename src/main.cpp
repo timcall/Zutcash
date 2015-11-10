@@ -3595,9 +3595,8 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     return true;
 }
 
-bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex** ppindex)
+static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex=NULL)
 {
-    const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
     // Check for duplicate
     uint256 hash = block.GetHash();
@@ -3646,7 +3645,7 @@ bool AcceptBlock(const CBlock& block, CValidationState& state, CBlockIndex** ppi
 
     CBlockIndex *&pindex = *ppindex;
 
-    if (!AcceptBlockHeader(block, state, &pindex))
+    if (!AcceptBlockHeader(block, state, chainparams, &pindex))
         return false;
 
     // Try to process all requested blocks that we don't have, but only
@@ -5508,7 +5507,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                 Misbehaving(pfrom->GetId(), 20);
                 return error("non-continuous headers sequence");
             }
-            if (!AcceptBlockHeader(header, state, &pindexLast)) {
+            if (!AcceptBlockHeader(header, state, chainparams, &pindexLast)) {
                 int nDoS;
                 if (state.IsInvalid(nDoS)) {
                     if (nDoS > 0)
